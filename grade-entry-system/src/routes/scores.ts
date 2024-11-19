@@ -81,4 +81,34 @@ scoreRoutes.get('/history', async (c: Context<{ Bindings: { DB: D1Database } }>)
 
 });
 
+// 特定の日付の点数を全ユーザー分取得するエンドポイント
+scoreRoutes.get('/summary', async (c: Context<{ Bindings: { DB: D1Database } }>) => {
+  const prisma = getPrisma(c.env.DB);
+
+  // クエリパラメータから日付を取得
+  const dateParam = c.req.query('date');
+  if(!dateParam){
+    return c.json({ error: 'Date query parameter is required' }, 400);
+  }
+
+  // 日付を検証
+  const date = new Date(dateParam);
+  if(isNaN(date.getTime())){
+    return c.json({ error: 'Invalid date format' }, 400);
+  }
+
+  // 特定の日付の点数のみ取得
+  try{
+    const scores = await prisma.score.findMany({
+      where: { testDate: date },
+      select: { score: true},   // ユーザーIDを含めないようscoreのみを選択
+      orderBy: { score: 'desc' }, // 点数の降順
+    });
+
+    return c.json({ scores }, 200);
+  }catch(error){
+    return c.json({ error: 'Failed to retrieve score summary', details: (error instanceof Error ? error.message : 'Unknown error') }, 500);
+  }
+});
+
 export { scoreRoutes };
