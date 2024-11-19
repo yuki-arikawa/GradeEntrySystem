@@ -91,11 +91,12 @@ scoreRoutes.get('/summary', async (c: Context<{ Bindings: { DB: D1Database } }>)
     return c.json({ error: 'Date query parameter is required' }, 400);
   }
 
-  // 日付を検証
-  const date = new Date(dateParam);
-  if(isNaN(date.getTime())){
-    return c.json({ error: 'Invalid date format' }, 400);
+  // 日付検証
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateRegex.test(dateParam)) {
+    return c.json({ error: 'Invalid date format, expected YYYY-MM-DD' }, 400);
   }
+  const date = new Date(dateParam);
 
   // 特定の日付の点数のみ取得
   try{
@@ -105,7 +106,7 @@ scoreRoutes.get('/summary', async (c: Context<{ Bindings: { DB: D1Database } }>)
       orderBy: { score: 'desc' }, // 点数の降順
     });
 
-    return c.json({ scores }, 200);
+    return c.json({ data: scores }, 200);
   }catch(error){
     return c.json({ error: 'Failed to retrieve score summary', details: (error instanceof Error ? error.message : 'Unknown error') }, 500);
   }
