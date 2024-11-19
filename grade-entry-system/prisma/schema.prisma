@@ -1,0 +1,36 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int       @id
+  passwordHash  String
+  role          String
+
+  Score         Score[]
+}
+
+model Score {
+  id            Int       @id @default(autoincrement())
+  userId        Int
+  testDate      DateTime
+  score         Int
+
+  User          User      @relation(fields: [userId], references: [id])
+}
+
+model TestResultSummary {
+  testDate            DateTime  @id
+  averageScore        Float?
+  highestScore        Int?
+  scoreDestribusion   String?
+}
