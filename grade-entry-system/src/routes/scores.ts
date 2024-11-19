@@ -3,6 +3,7 @@ import { Context } from 'hono';
 import { PrismaClient } from '@prisma/client';
 import { PrismaD1 } from '@prisma/adapter-d1';
 import { getUserIdFromToken } from '../utils/jwt';
+import { getUserIdFromRequest } from '../utils/auth';
 
 const scoreRoutes = new Hono();
 
@@ -22,31 +23,39 @@ type ScoreEntryRequest = {
 scoreRoutes.post('/entry', async (c: Context<{ Bindings: { DB: D1Database } }>) => {
   const prisma = getPrisma(c.env.DB);
   const { score, testDate } = await c.req.json<ScoreEntryRequest>();
-  // Authorizationからトークン取得
-  const token = c.req.header('Authorization')?.split(' ')[1];
-  if(!token){
-    return c.json({ error: 'Authorization token missing' }, 401);
-  }
 
   // トークンから userId を取得
-  const userId = getUserIdFromToken(token);
-  console.log(typeof(userId));
-  if(!userId) {
+  const userId = getUserIdFromRequest(c);
+  if(userId === null) {
     return c.json({ error: 'Invalid or expired token' }, 401);
+  }
+
+  // 日付チェック
+  const date = new Date(testDate);
+  if(isNaN(date.getTime())){
+    return c.json({ error: 'Invalid date format' }, 400);
   }
 
   // 点数データをデータベースに保存
   try{
+    // 同じ testDate のデータを削除
+    await prisma.score.deleteMany({
+      where: {
+        userId,
+        testDate: date,
+      },
+    });
+
     const newScore = await prisma.score.create({
       data: {
         userId,
         score,
-        testDate: new Date(testDate),
+        testDate: date,
       },
     });
     return c.json({ newScore }, 201);
   }catch(error){
-    return c.json({ error: 'Failed to save score', details: error.message  }, 500);
+    return c.json({ error: 'Failed to save score', details: (error instanceof Error ? error.message : 'Unknown error')  }, 500);
   }
 });
 
@@ -54,15 +63,9 @@ scoreRoutes.post('/entry', async (c: Context<{ Bindings: { DB: D1Database } }>) 
 scoreRoutes.get('/history', async (c: Context<{ Bindings: { DB: D1Database } }>) => {
   const prisma = getPrisma(c.env.DB);
 
-  // Authorizationからトークン取得
-  const token = c.req.header('Authorization')?.split(' ')[1];
-  if(!token){
-    return c.json({ error: 'Authorization token missing' }, 401);
-  }
-
   // トークンからuserIdを取得
-  const userId = getUserIdFromToken(token);
-  if(!userId) {
+  const userId = getUserIdFromRequest(c);
+  if(userId === null) {
     return c.json({ error: 'Invalid or expired token' }, 401);
   }
 
@@ -74,9 +77,9 @@ scoreRoutes.get('/history', async (c: Context<{ Bindings: { DB: D1Database } }>)
     });
     return c.json({ scoreHistory }, 200);
   } catch(error) {
-    return c.json({ error: 'Failed to retrieve score history', details: error.message }, 500);
+    return c.json({ error: 'Failed to retrieve score history', details: (error instanceof Error ? error.message : 'Unknown error') }, 500);
   }
 
-})
+});
 
 export { scoreRoutes };
