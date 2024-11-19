@@ -2,7 +2,6 @@ import { Hono } from 'hono';
 import { Context } from 'hono';
 import { PrismaClient } from '@prisma/client';
 import { PrismaD1 } from '@prisma/adapter-d1';
-import { getUserIdFromToken } from '../utils/jwt';
 import { getUserIdFromRequest } from '../utils/auth';
 
 const scoreRoutes = new Hono();
