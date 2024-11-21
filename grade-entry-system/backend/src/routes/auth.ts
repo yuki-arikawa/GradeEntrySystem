@@ -33,10 +33,24 @@ authRoutes.post('/login', async (c: Context<{ Bindings: { DB: D1Database } }>) =
     return c.json({error: 'Invalid password'}, 401);
   }
 
-  // JWTトークンの生成
-  const token = generateToken({ id: user.id, role: user.role });
+  try{
+    // JWTトークンの生成
+    const token = generateToken({ id: user.id, role: user.role });
 
-  return c.json({ token });
+    // クッキーを設定
+    c.header('Set-Cookie', `token=${token}; HttpOnly; Secure; Path=/; SameSite=Strict; Max-Age=3600`);
+
+    return c.json({ message: 'Login successful' });
+  }catch(error){
+    return c.json({ error: 'Token generation failed' }, 500);
+  }
+});
+
+// ログアウトエンドポイント
+authRoutes.post('/logout', async (c: Context) => {
+  // トークンを削除するためのSet-Cookie
+  c.header('Set-Cookie', 'token=; HttpOnly; Secure; Path=/; Max-Age=0');
+  return c.json({ message: 'Logged out successfully' });
 });
 
 // ユーザー登録エンドポイント
