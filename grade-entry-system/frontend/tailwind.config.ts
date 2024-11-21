@@ -8,10 +8,13 @@ export default {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    fontFamily: {
+      AlfaSlabOne: ['Alfa Slab One', 'serif']
+    },
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        main: "#FFF1D6",
+        sub: "#80573B"
       },
     },
   },
