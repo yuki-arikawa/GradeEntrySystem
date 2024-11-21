@@ -1,18 +1,16 @@
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { getToken } from "@/utils/auth";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function Home() {
-  const router = useRouter();
+export default async function Home() {
+  // クッキーからトークン取得
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token')?.value;
 
-  useEffect(() => {
-    const token = getToken();
-    if(token){
-      router.push('/dashboard');
-    }else{
-      router.push('/login');
-    }
-  }, [router]);
+  if(token){
+    redirect('/dashboard');
+  }else{
+    redirect('/login');
+  }
 
   return null;
 }
