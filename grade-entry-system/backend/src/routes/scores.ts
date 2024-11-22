@@ -15,7 +15,7 @@ const getPrisma = (db: D1Database) => {
 // 型定義
 type ScoreEntryRequest = {
   score: number;
-  testDate: string; // YYYY-MM-DD形式
+  testDate: string;
 };
 
 // 点数入力エンドポイント
@@ -74,7 +74,27 @@ scoreRoutes.get('/history', async (c: Context<{ Bindings: { DB: D1Database } }>)
       where: { userId },
       orderBy: { testDate: 'desc' }, // 日付の降順
     });
-    return c.json({ scoreHistory }, 200);
+
+    console.log(scoreHistory);
+
+    // 日付をフォーマット
+    const formattedHistory = scoreHistory.map((entry) => {
+      if(!entry.testDate) {
+        console.error("Invalid testDate:", entry);
+        throw new Error("testDate is missing or invalid");
+      }
+      const formattedDate = entry.testDate.toLocaleDateString();
+      console.log(formattedDate);
+
+      return {
+        ...entry,
+        testDate: formattedDate,
+      }
+    });
+
+    console.log(formattedHistory);
+
+    return c.json({ scoreHistory: formattedHistory }, 200);
   } catch(error) {
     return c.json({ error: 'Failed to retrieve score history', details: (error instanceof Error ? error.message : 'Unknown error') }, 500);
   }
