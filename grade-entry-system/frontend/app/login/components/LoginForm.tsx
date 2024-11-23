@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "./Button";
-import InputField from "./InputField";
+import InputField from "../../components/InputField";
 import { ENDPOINTS } from "@/utils/endpoints";
 
 export default function LoginForm(){
