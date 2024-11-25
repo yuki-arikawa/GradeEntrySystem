@@ -41,12 +41,12 @@ export default function Entry() {
 
   return (
     <form
-      onSubmit={handleSubmit}
-      className="w-4/5 m-auto"
+    onSubmit={handleSubmit}
+    className="w-4/5 mx-auto my-5"
     >
-      <h2>点数入力</h2>
+      {/* <h2 className="text-lg">点数入力</h2> */}
 
-      <div className="w-auto flex gap-4">
+      <div className="w-auto flex justify-center gap-4">
         <InputField
           type="date"
           placeholder="日付"
