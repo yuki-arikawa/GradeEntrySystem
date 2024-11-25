@@ -39,8 +39,8 @@ export default function ScoreBoard() {
   const dataPoints = scores.map((score) => score.score);
 
   return (
-    <div className="w-3/4 flex flex-wrap items-start mx-auto">
-      <table className="table w-1/4 bg-white rounded-md">
+    <div className="w-full md:w-2/3 flex flex-col md:flex-row items-start gap-4 mx-auto">
+      <table className="table w-full md:w-1/2 bg-white rounded-md">
         <thead>
           <tr>
             <th>日付</th><th>点数</th>
@@ -55,7 +55,7 @@ export default function ScoreBoard() {
           ))}
         </tbody>
       </table>
-      <div className="w-3/4 mt-2">
+      <div className="w-full md:w-1/2 h-96 md:h-80 lg:h-64 mt-2">
         <ScoreChart labels={labels} dataPoints={dataPoints} />
       </div>
     </div>

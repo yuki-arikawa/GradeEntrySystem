@@ -8,9 +8,10 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import annotationPlugin from 'chartjs-plugin-annotation';
 
 // Chart.jsの登録
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, annotationPlugin);
 
 type ScoreChartProps = {
   labels: string[]; // X軸のラベル（テストの日付）
@@ -36,6 +37,7 @@ export default function ScoreChart({ labels, dataPoints }: ScoreChartProps) {
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top' as const,
