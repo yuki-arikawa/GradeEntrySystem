@@ -1,7 +1,8 @@
 'use client'
 
 import { ENDPOINTS } from "@/utils/endpoints";
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
+import ScoreChart from "./ScoreChart";
 
 type Score = {
   userId: number;
@@ -33,21 +34,30 @@ export default function ScoreBoard() {
     fetchScores();
   }, []);
 
+  // グラフデータ準備
+  const labels = scores.map((score) => new Date(score.testDate).toLocaleDateString());
+  const dataPoints = scores.map((score) => score.score);
+
   return (
-    <table className="table w-1/4 bg-white rounded-md">
-      <thead>
-        <tr>
-          <th>日付</th><th>点数</th>
-        </tr>
-      </thead>
-      <tbody>
-        {scores.map((score, index) => (
-          <tr key={index}>
-            <td>{score.testDate}</td>
-            <td>{score.score}</td>
+    <div className="w-3/4 flex flex-wrap items-start mx-auto">
+      <table className="table w-1/4 bg-white rounded-md">
+        <thead>
+          <tr>
+            <th>日付</th><th>点数</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {scores.map((score, index) => (
+            <tr key={index}>
+              <td>{score.testDate}</td>
+              <td>{score.score}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="w-3/4 mt-2">
+        <ScoreChart labels={labels} dataPoints={dataPoints} />
+      </div>
+    </div>
   )
 }
