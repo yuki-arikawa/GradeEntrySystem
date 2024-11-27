@@ -57,7 +57,6 @@ export default function ScoreChart({ labels, dataPoints }: ScoreChartProps) {
             borderColor: 'red',
             borderWidth: 2,
             label: {
-              enabled: true,
               content: '60%',
               position: 'end',
               backgroundColor: 'rgba(255, 255, 255, 0.8)',
