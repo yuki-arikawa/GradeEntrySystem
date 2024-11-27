@@ -1,15 +1,13 @@
 import RequireAuth from "../components/RequireAuth";
-import Entry from "./components/Entry";
 import Headers from "./components/Header"
-import ScoreBoard from "./components/ScoreBoard";
+import DashboardContent from "./components/DashboardContent";
 
 export default function DashboardPage() {
   return(
     <RequireAuth>
       <div className="h-screen">
         <Headers />
-        <Entry />
-        <ScoreBoard />
+        <DashboardContent />
       </div>
     </RequireAuth>
   );

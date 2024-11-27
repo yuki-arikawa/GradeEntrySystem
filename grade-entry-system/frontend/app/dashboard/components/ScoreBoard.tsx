@@ -1,38 +1,16 @@
 'use client'
 
-import { ENDPOINTS } from "@/utils/endpoints";
-import { useEffect, useState } from "react";
 import ScoreChart from "./ScoreChart";
 
-type Score = {
-  userId: number;
-  score: number;
-  testDate: string;
+type ScoreBoardProps = {
+  scores: {
+    userId: number;
+    score: number;
+    testDate: string;
+  }[];
 }
 
-export default function ScoreBoard() {
-  const [scores, setScores] = useState<Score[]>([]);
-
-  useEffect(() => {
-    const fetchScores = async () => {
-      try{
-        const response = await fetch(ENDPOINTS.HISTORY, {
-          method: "GET",
-          credentials: "include",
-        });
-
-        if(response.ok) {
-          const data = await response.json();
-          setScores(data.scoreHistory);
-        }else{
-          console.error("Failed to fetch scores");
-        }
-      }catch(error){
-        console.error("Error fetching scores:", error);
-      }
-    }
-    fetchScores();
-  }, []);
+export default function ScoreBoard({ scores }: ScoreBoardProps) {
 
   // グラフデータ準備
   const labels = scores.map((score) => new Date(score.testDate).toLocaleDateString());

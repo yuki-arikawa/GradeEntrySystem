@@ -4,7 +4,11 @@ import { useState } from "react";
 import InputField from "@/app/components/InputField";
 import { ENDPOINTS } from "@/utils/endpoints";
 
-export default function Entry() {
+type EntryProps = {
+  fetchScores: () => Promise<void>;
+}
+
+export default function Entry({ fetchScores }: EntryProps) {
   const [testDate, setTestDate] = useState("");
   const [score, setScore] = useState("");
 
@@ -37,6 +41,7 @@ export default function Entry() {
     }catch(error){
       console.error("Error submitting score:", error);
     }
+    await fetchScores();
   };
 
   return (
