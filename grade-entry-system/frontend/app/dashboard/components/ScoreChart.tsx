@@ -7,8 +7,10 @@ import {
   Title,
   Tooltip,
   Legend,
+  ChartOptions,
 } from 'chart.js';
 import annotationPlugin from 'chartjs-plugin-annotation';
+// import { AnnotationOptions } from "chartjs-plugin-annotation";
 
 // Chart.jsの登録
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, annotationPlugin);
@@ -35,7 +37,7 @@ export default function ScoreChart({ labels, dataPoints }: ScoreChartProps) {
     ],
   };
 
-  const options = {
+  const options: ChartOptions<'bar'> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -49,7 +51,7 @@ export default function ScoreChart({ labels, dataPoints }: ScoreChartProps) {
       annotation: {
         annotations: {
           line: {
-            type: 'box',
+            type: 'line',
             yMin: threshold,
             yMax: threshold,
             borderColor: 'red',
