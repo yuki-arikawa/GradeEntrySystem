@@ -49,7 +49,7 @@ export default function ScoreChart({ labels, dataPoints }: ScoreChartProps) {
       annotation: {
         annotations: {
           line: {
-            type: 'line',
+            type: 'box',
             yMin: threshold,
             yMax: threshold,
             borderColor: 'red',
