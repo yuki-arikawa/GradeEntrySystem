@@ -1,8 +1,9 @@
 import { Hono } from 'hono';
 import { Context } from 'hono';
+import { getCookie } from 'hono/cookie';
 import { PrismaClient } from '@prisma/client';
 import { PrismaD1 } from '@prisma/adapter-d1';
-import { generateToken } from '../utils/jwt';
+import { generateToken, verifyToken } from '../utils/jwt';
 import { hashPassword, verifyPassword } from '../utils/bcrypt';
 
 const authRoutes = new Hono();
@@ -51,6 +52,24 @@ authRoutes.post('/logout', async (c: Context) => {
   // トークンを削除するためのSet-Cookie
   c.header('Set-Cookie', 'token=; HttpOnly; Secure; Path=/; Max-Age=0');
   return c.json({ message: 'Logged out successfully' });
+});
+
+authRoutes.get('/check', (c: Context<{ Bindings: { DB: D1Database } }>) => {
+  const token = getCookie(c, 'token');
+  if(!token) {
+    return c.json({ error: 'Unauthorized: No token found' }, 401);
+  }
+
+  try{
+    const payload = verifyToken(token);
+    if(payload){
+      return c.json({ success: true }, 200);
+    }else{
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+  }catch(error){
+    return c.json({ error: 'Unauthorized: Invalid token' }, 401);
+  }
 });
 
 // ユーザー登録エンドポイント
