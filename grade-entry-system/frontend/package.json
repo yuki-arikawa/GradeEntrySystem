@@ -13,7 +13,7 @@
     "chart.js": "^4.4.6",
     "chartjs-plugin-annotation": "^3.1.0",
     "daisyui": "^4.12.14",
-    "next": "15.0.3",
+    "next": "^15.0.3",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
@@ -21,6 +21,7 @@
     "yup": "^1.4.0"
   },
   "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.13.5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
