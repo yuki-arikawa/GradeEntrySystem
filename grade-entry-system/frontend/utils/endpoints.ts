@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://grade-entry-system.yarikawa0220.workers.dev";
 
 export const ENDPOINTS = {
   LOGIN:    `${BASE_URL}/auth/login`,
