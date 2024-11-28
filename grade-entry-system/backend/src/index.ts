@@ -5,11 +5,22 @@ import { scoreRoutes } from './routes/scores';
 
 const app = new Hono();
 
+const allowedOrigins = [
+  'http://localhost:3001',
+  'https://gradeentrysystem.pages.dev',
+];
+
 // CORS設定
 app.use(
   '*',
   cors({
-    origin: 'https://gradeentrysystem.pages.dev',
+    origin: (origin) => {
+      console.log('CORS Origin:', origin); // デバッグ用
+      if (allowedOrigins.includes(origin)) {
+        return origin;
+      }
+      return null; // 許可されていない場合は CORS エラー
+    },
     allowHeaders: ['Content-Type', 'Authorization'],
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
