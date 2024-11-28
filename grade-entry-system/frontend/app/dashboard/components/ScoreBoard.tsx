@@ -12,9 +12,12 @@ type ScoreBoardProps = {
 
 export default function ScoreBoard({ scores }: ScoreBoardProps) {
 
+  // グラフ用データを昇順でソート
+  const sortedScores = [...scores].sort((a, b) => new Date(a.testDate).getTime() - new Date(b.testDate).getTime());
+
   // グラフデータ準備
-  const labels = scores.map((score) => new Date(score.testDate).toLocaleDateString());
-  const dataPoints = scores.map((score) => score.score);
+  const labels = sortedScores.map((score) => new Date(score.testDate).toLocaleDateString());
+  const dataPoints = sortedScores.map((score) => score.score);
 
   return (
     <div className="w-full md:w-2/3 flex flex-col md:flex-row items-start gap-4 mx-auto">
