@@ -9,7 +9,7 @@ const app = new Hono();
 app.use(
   '*',
   cors({
-    origin: 'https://gradeentrysystem.pages.dev/',
+    origin: 'https://gradeentrysystem.pages.dev',
     allowHeaders: ['Content-Type', 'Authorization'],
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
