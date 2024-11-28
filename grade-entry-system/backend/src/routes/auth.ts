@@ -39,7 +39,7 @@ authRoutes.post('/login', async (c: Context<{ Bindings: { DB: D1Database } }>) =
     const token = generateToken({ id: user.id, role: user.role });
 
     // クッキーを設定
-    c.header('Set-Cookie', `token=${token}; HttpOnly; Secure; Path=/; SameSite=Strict; Max-Age=3600`);
+    c.header('Set-Cookie', `token=${token}; HttpOnly; Secure; Path=/; SameSite=None; Max-Age=3600`);
 
     return c.json({ message: 'Login successful' });
   }catch(error){
