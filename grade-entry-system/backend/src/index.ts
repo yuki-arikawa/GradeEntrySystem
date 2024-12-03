@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { authRoutes } from './routes/auth';
 import { scoreRoutes } from './routes/scores';
+import { teacherRoutes } from './routes/teacher';
 
 const app = new Hono();
 
@@ -30,5 +31,6 @@ app.use(
 // 認証関連のルートを設定
 app.route('/auth', authRoutes);
 app.route('/scores', scoreRoutes);
+app.route('/teacher', teacherRoutes);
 
 export default app;

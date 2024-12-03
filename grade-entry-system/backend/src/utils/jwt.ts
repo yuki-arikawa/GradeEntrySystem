@@ -36,3 +36,18 @@ export const getUserIdFromToken = (token: string): number | null => {
     return null;
   }
 }
+
+export const getRoleFromToken = (token: string): string | null => {
+  try{
+    // ペイロードの型を定義
+    interface JwtPayload {
+      role: string;
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    return decoded.role;
+  }catch(error){
+    console.error('Failed to extract userId from token:', error);
+    return null;
+  }
+}

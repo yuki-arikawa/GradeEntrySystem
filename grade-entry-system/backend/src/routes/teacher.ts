@@ -2,9 +2,21 @@ import { Hono } from "hono";
 import { Context } from "hono";
 import { PrismaClient } from "@prisma/client";
 import { PrismaD1 } from "@prisma/adapter-d1";
-import { getUserIdFromRequest } from "../utils/auth";
+import { getRoleFromRequest } from "../utils/auth";
 
 const teacherRoutes = new Hono();
+
+const requireTeacherRole = async (c: Context<{ Bindings: { DB: D1Database } }>, next: () => Promise<void>) => {
+  const prisma = getPrisma(c.env.DB);
+
+  //JWTからユーザー情報取得
+  const role = getRoleFromRequest(c);
+  if (role !== 'teacher') {
+    return c.json({ error: 'Access denied. Teachers only.' }, 403);
+  }
+
+  await next();
+}
 
 // Prisma Clientを初期化する関数
 const getPrisma = (db: D1Database) => {
@@ -13,7 +25,7 @@ const getPrisma = (db: D1Database) => {
 };
 
 // 日付ごとの点数一覧取得エンドポイント
-teacherRoutes.get('/scores/date', async (c: Context<{ Bindings: { DB: D1Database } }>) => {
+teacherRoutes.get('/scores/date', requireTeacherRole, async (c: Context<{ Bindings: { DB: D1Database } }>) => {
   const prisma = getPrisma(c.env.DB);
 
   // クエリパラメータから日付取得
