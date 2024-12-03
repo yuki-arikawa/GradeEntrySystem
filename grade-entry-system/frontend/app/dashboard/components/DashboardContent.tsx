@@ -18,6 +18,9 @@ export default function DashboardContent() {
     try{
       const response = await fetch(ENDPOINTS.HISTORY, {
         method: "GET",
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('token'),
+        },
         credentials: "include",
       });
 

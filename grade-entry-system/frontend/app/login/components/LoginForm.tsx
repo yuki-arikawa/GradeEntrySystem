@@ -22,6 +22,8 @@ export default function LoginForm(){
 
       if(response.ok) {
         console.log("Login successful");
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
         router.push("/dashboard");
       }else{
         console.log("Login failed");

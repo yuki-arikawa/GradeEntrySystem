@@ -26,6 +26,7 @@ export default function Entry({ fetchScores }: EntryProps) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": "Bearer " + localStorage.getItem('token'),
         },
         body: JSON.stringify({ testDate, score: parseInt(score, 10) }),
         credentials: 'include',

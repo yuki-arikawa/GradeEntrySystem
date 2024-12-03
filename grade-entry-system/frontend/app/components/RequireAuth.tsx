@@ -16,6 +16,9 @@ export default function RequireAuth({ children }: RequireAuthProps) {
       try {
         const response = await fetch(ENDPOINTS.CHECK, {
           method: 'GET',
+          headers: {
+            Authorization: 'Bearer ' + localStorage.getItem('token'),
+          },
           credentials: 'include',
         });
 
