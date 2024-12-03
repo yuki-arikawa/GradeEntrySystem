@@ -2,7 +2,8 @@ import { Hono } from 'hono';
 import { Context } from 'hono';
 import { PrismaClient } from '@prisma/client';
 import { PrismaD1 } from '@prisma/adapter-d1';
-import { getUserIdFromRequest } from '../utils/auth';
+import { authMiddleware } from '../utils/auth';
+import { Payload } from '../utils/jwt';
 
 const scoreRoutes = new Hono();
 
@@ -19,12 +20,13 @@ type ScoreEntryRequest = {
 };
 
 // 点数入力エンドポイント
-scoreRoutes.post('/entry', async (c: Context<{ Bindings: { DB: D1Database } }>) => {
+scoreRoutes.post('/entry', authMiddleware, async (c: Context<{ Bindings: { DB: D1Database } }>) => {
   const prisma = getPrisma(c.env.DB);
   const { score, testDate } = await c.req.json<ScoreEntryRequest>();
 
   // トークンから userId を取得
-  const userId = getUserIdFromRequest(c);
+  const payload = c.get('jwtPayload');
+  const userId = payload.id;
   if(userId === null) {
     return c.json({ error: 'Invalid or expired token' }, 401);
   }
@@ -59,14 +61,12 @@ scoreRoutes.post('/entry', async (c: Context<{ Bindings: { DB: D1Database } }>) 
 });
 
 // 点数履歴取得エンドポイント
-scoreRoutes.get('/history', async (c: Context<{ Bindings: { DB: D1Database } }>) => {
+scoreRoutes.get('/history', authMiddleware, async (c: Context<{ Bindings: { DB: D1Database } }>) => {
   const prisma = getPrisma(c.env.DB);
 
   // トークンからuserIdを取得
-  const userId = getUserIdFromRequest(c);
-  if(userId === null) {
-    return c.json({ error: 'Invalid or expired token' }, 401);
-  }
+  const payload: Payload = c.get('jwtPayload');
+  const userId = payload.id;
 
   // 点数履歴をデータベースから取得
   try{
@@ -102,7 +102,7 @@ scoreRoutes.get('/history', async (c: Context<{ Bindings: { DB: D1Database } }>)
 });
 
 // 特定の日付の点数を全ユーザー分取得するエンドポイント
-scoreRoutes.get('/summary', async (c: Context<{ Bindings: { DB: D1Database } }>) => {
+scoreRoutes.get('/summary', authMiddleware, async (c: Context<{ Bindings: { DB: D1Database } }>) => {
   const prisma = getPrisma(c.env.DB);
 
   // クエリパラメータから日付を取得

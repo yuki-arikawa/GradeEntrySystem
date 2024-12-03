@@ -1,6 +1,8 @@
 import { Context } from 'hono';
 import { getCookie } from 'hono/cookie';
 import { getRoleFromToken, getUserIdFromToken } from './jwt';
+import { createMiddleware } from 'hono/factory';
+import { jwt } from 'hono/jwt';
 
 
 // 関数の定義
@@ -21,3 +23,8 @@ export const getRoleFromRequest = (c: Context<{ Bindings: { DB: D1Database } }>)
   // トークンから role を取得
   return getRoleFromToken(token);
 }
+
+export const authMiddleware = createMiddleware(async (c, next) => {
+  const jwtMiddleware = jwt({ secret: process.env.JWT_SECRET || 'secret' });
+  return jwtMiddleware(c, next)
+});

@@ -2,21 +2,10 @@ import { Hono } from "hono";
 import { Context } from "hono";
 import { PrismaClient } from "@prisma/client";
 import { PrismaD1 } from "@prisma/adapter-d1";
-import { getRoleFromRequest } from "../utils/auth";
+import { authMiddleware } from "../utils/auth";
+import { Payload } from "../utils/jwt";
 
 const teacherRoutes = new Hono();
-
-const requireTeacherRole = async (c: Context<{ Bindings: { DB: D1Database } }>, next: () => Promise<void>) => {
-  const prisma = getPrisma(c.env.DB);
-
-  //JWTからユーザー情報取得
-  const role = getRoleFromRequest(c);
-  if (role !== 'teacher') {
-    return c.json({ error: 'Access denied. Teachers only.' }, 403);
-  }
-
-  await next();
-}
 
 // Prisma Clientを初期化する関数
 const getPrisma = (db: D1Database) => {
@@ -25,8 +14,15 @@ const getPrisma = (db: D1Database) => {
 };
 
 // 日付ごとの点数一覧取得エンドポイント
-teacherRoutes.get('/scores/date', requireTeacherRole, async (c: Context<{ Bindings: { DB: D1Database } }>) => {
+teacherRoutes.get('/scores/date', authMiddleware, async (c: Context<{ Bindings: { DB: D1Database } }>) => {
   const prisma = getPrisma(c.env.DB);
+
+  const payload: Payload = c.get('jwtPayload');
+  const role = payload.role;
+
+  if(role !== 'teacher'){
+    return c.json({ error: 'This page is for teachers only'}, 403);
+  }
 
   // クエリパラメータから日付取得
   const dateParam = c.req.query('date');

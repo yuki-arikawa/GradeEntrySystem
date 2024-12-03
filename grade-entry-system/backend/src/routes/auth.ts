@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
 import { Context } from 'hono';
-import { getCookie } from 'hono/cookie';
 import { PrismaClient } from '@prisma/client';
 import { PrismaD1 } from '@prisma/adapter-d1';
-import { generateToken, verifyToken } from '../utils/jwt';
+import { generateToken } from '../utils/jwt';
 import { hashPassword, verifyPassword } from '../utils/bcrypt';
+import { authMiddleware } from '../utils/auth';
 
 const authRoutes = new Hono();
 
@@ -36,12 +36,12 @@ authRoutes.post('/login', async (c: Context<{ Bindings: { DB: D1Database } }>) =
 
   try{
     // JWTトークンの生成
-    const token = generateToken({ id: user.id, role: user.role });
+    const token =  await generateToken({ id: user.id, role: user.role });
 
     // クッキーを設定
-    c.header('Set-Cookie', `token=${token}; HttpOnly; Secure; Path=/; SameSite=None; Max-Age=3600`);
+    // c.header('Set-Cookie', `token=${token}; HttpOnly; Secure; Path=/; SameSite=None; Max-Age=3600`);
 
-    return c.json({ message: 'Login successful' });
+    return c.json({ token });
   }catch(error){
     return c.json({ error: 'Token generation failed' }, 500);
   }
@@ -54,14 +54,10 @@ authRoutes.post('/logout', async (c: Context) => {
   return c.json({ message: 'Logged out successfully' });
 });
 
-authRoutes.get('/check', (c: Context<{ Bindings: { DB: D1Database } }>) => {
-  const token = getCookie(c, 'token');
-  if(!token) {
-    return c.json({ error: 'Unauthorized: No token found' }, 401);
-  }
+authRoutes.get('/check', authMiddleware, async (c: Context<{ Bindings: { DB: D1Database } }>) => {
 
   try{
-    const payload = verifyToken(token);
+    const payload = c.get('jwtPayload');
     if(payload){
       return c.json({ success: true }, 200);
     }else{
