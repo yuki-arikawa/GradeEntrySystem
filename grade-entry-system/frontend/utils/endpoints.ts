@@ -6,5 +6,5 @@ export const ENDPOINTS = {
   CHECK:    `${BASE_URL}/auth/check`,
   ENTRY:    `${BASE_URL}/scores/entry`,
   HISTORY:  `${BASE_URL}/scores/history`,
-  SUMMARY:  `${BASE_URL}/scores/summary`,
+  SUMMARY:  `${BASE_URL}/teacher/summary`,
 };

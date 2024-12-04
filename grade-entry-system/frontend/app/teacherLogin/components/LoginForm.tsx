@@ -28,7 +28,7 @@ export default function LoginForm(){
         if(data.role !== 'teacher'){
           redirect("/login");
         }
-        redirect("/teacher");
+        router.push("/teacher");
       }else{
         console.log("Login failed");
       }
