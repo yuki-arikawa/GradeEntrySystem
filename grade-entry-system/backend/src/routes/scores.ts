@@ -1,11 +1,15 @@
 import { Hono } from 'hono';
-import { Context } from 'hono';
 import { PrismaClient } from '@prisma/client';
 import { PrismaD1 } from '@prisma/adapter-d1';
 import { authMiddleware } from '../utils/auth';
-import { Payload } from '../utils/jwt';
 
-const scoreRoutes = new Hono();
+
+type Bindings = {
+  JWT_SECRET: string,
+  DB: D1Database
+}
+
+const scoreRoutes = new Hono<{Bindings: Bindings}>();
 
 // Prisma Clientを初期化する関数
 const getPrisma = (db: D1Database) => {
@@ -20,7 +24,7 @@ type ScoreEntryRequest = {
 };
 
 // 点数入力エンドポイント
-scoreRoutes.post('/entry', authMiddleware, async (c: Context<{ Bindings: { DB: D1Database } }>) => {
+scoreRoutes.post('/entry', authMiddleware, async (c) => {
   const prisma = getPrisma(c.env.DB);
   const { score, testDate } = await c.req.json<ScoreEntryRequest>();
 
@@ -61,11 +65,11 @@ scoreRoutes.post('/entry', authMiddleware, async (c: Context<{ Bindings: { DB: D
 });
 
 // 点数履歴取得エンドポイント
-scoreRoutes.get('/history', authMiddleware, async (c: Context<{ Bindings: { DB: D1Database } }>) => {
+scoreRoutes.get('/history', authMiddleware, async (c) => {
   const prisma = getPrisma(c.env.DB);
 
   // トークンからuserIdを取得
-  const payload: Payload = c.get('jwtPayload');
+  const payload = c.get('jwtPayload');
   const userId = payload.id;
 
   // 点数履歴をデータベースから取得
@@ -102,7 +106,7 @@ scoreRoutes.get('/history', authMiddleware, async (c: Context<{ Bindings: { DB: 
 });
 
 // 特定の日付の点数を全ユーザー分取得するエンドポイント
-scoreRoutes.get('/summary', authMiddleware, async (c: Context<{ Bindings: { DB: D1Database } }>) => {
+scoreRoutes.get('/summary', authMiddleware, async (c) => {
   const prisma = getPrisma(c.env.DB);
 
   // クエリパラメータから日付を取得

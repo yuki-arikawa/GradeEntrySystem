@@ -1,12 +1,17 @@
 import { Hono } from 'hono';
-import { Context } from 'hono';
 import { PrismaClient } from '@prisma/client';
 import { PrismaD1 } from '@prisma/adapter-d1';
-import { generateToken } from '../utils/jwt';
+import { sign } from 'hono/jwt';
+
 import { hashPassword, verifyPassword } from '../utils/bcrypt';
 import { authMiddleware } from '../utils/auth';
 
-const authRoutes = new Hono();
+type Bindings = {
+  JWT_SECRET: string,
+  DB: D1Database
+}
+
+const authRoutes = new Hono<{Bindings: Bindings}>();
 
 // Prisma Clientを初期化する関数
 const getPrismaClient = (db: D1Database) => {
@@ -15,7 +20,7 @@ const getPrismaClient = (db: D1Database) => {
 }
 
 // ログインエンドポイント
-authRoutes.post('/login', async (c: Context<{ Bindings: { DB: D1Database } }>) => {
+authRoutes.post('/login', async (c) => {
   const prisma = getPrismaClient(c.env.DB);
   const {id, password} = await c.req.json<{ id: number; password: string }>();
 
@@ -36,7 +41,8 @@ authRoutes.post('/login', async (c: Context<{ Bindings: { DB: D1Database } }>) =
 
   try{
     // JWTトークンの生成
-    const token =  await generateToken({ id: user.id, role: user.role });
+    // const token =  await generateToken({ id: user.id, role: user.role });
+    const token = await sign({id: user.id, role: user.role, exp: Math.floor(Date.now() / 1000) + 60 * 60 }, c.env.JWT_SECRET);
 
     // クッキーを設定
     // c.header('Set-Cookie', `token=${token}; HttpOnly; Secure; Path=/; SameSite=None; Max-Age=3600`);
@@ -48,20 +54,19 @@ authRoutes.post('/login', async (c: Context<{ Bindings: { DB: D1Database } }>) =
 });
 
 // ログアウトエンドポイント
-authRoutes.post('/logout', async (c: Context) => {
+authRoutes.post('/logout', async (c) => {
   // トークンを削除するためのSet-Cookie
   c.header('Set-Cookie', 'token=; HttpOnly; Secure; Path=/; Max-Age=0');
   return c.json({ message: 'Logged out successfully' });
 });
 
-authRoutes.get('/check', authMiddleware, async (c: Context<{ Bindings: { DB: D1Database } }>) => {
-
+authRoutes.get('/check', authMiddleware, async (c) => {
   try{
     const payload = c.get('jwtPayload');
     if(payload){
       return c.json({ success: true }, 200);
     }else{
-      return c.json({ error: 'Unauthorized' }, 401);
+      return c.json({ error: 'Unauthorized', payload }, 401);
     }
   }catch(error){
     return c.json({ error: 'Unauthorized: Invalid token' }, 401);
@@ -69,7 +74,7 @@ authRoutes.get('/check', authMiddleware, async (c: Context<{ Bindings: { DB: D1D
 });
 
 // ユーザー登録エンドポイント
-authRoutes.post('/register', async (c: Context<{ Bindings: { DB: D1Database } }>) => {
+authRoutes.post('/register', async (c) => {
   const prisma = getPrismaClient(c.env.DB);
 
   const { id, password, role } = await c.req.json<{ id: number; password: string; role: string }>();
