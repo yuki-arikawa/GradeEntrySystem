@@ -51,9 +51,10 @@ export default function Summary() {
 
   useEffect(() => {
     if(scores){
-      const groupedScores = scores.data.reduce(
-        (acc: Record<number, number>, { score }) => {
-          acc[score] = (acc[score] || 0) + 1;
+      const groupedScores = Array.from({ length: 81 }, (_, i) => i).reduce(
+        (acc: Record<number, number>, value) => {
+          // `scores.data` 内に現在の `value` と一致するスコアがあれば、その数をカウント
+          acc[value] = scores.data.filter(({ score }) => score === value).length;
           return acc;
         },
         {} as Record<number, number>
