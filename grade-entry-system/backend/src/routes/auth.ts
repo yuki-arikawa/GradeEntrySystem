@@ -44,10 +44,7 @@ authRoutes.post('/login', async (c) => {
     // const token =  await generateToken({ id: user.id, role: user.role });
     const token = await sign({id: user.id, role: user.role, exp: Math.floor(Date.now() / 1000) + 60 * 60 }, c.env.JWT_SECRET);
 
-    // クッキーを設定
-    // c.header('Set-Cookie', `token=${token}; HttpOnly; Secure; Path=/; SameSite=None; Max-Age=3600`);
-
-    return c.json({ token });
+    return c.json({ token, role: user.role });
   }catch(error){
     return c.json({ error: 'Token generation failed' }, 500);
   }
