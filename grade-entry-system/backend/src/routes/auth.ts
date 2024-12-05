@@ -50,13 +50,6 @@ authRoutes.post('/login', async (c) => {
   }
 });
 
-// ログアウトエンドポイント
-authRoutes.post('/logout', async (c) => {
-  // トークンを削除するためのSet-Cookie
-  c.header('Set-Cookie', 'token=; HttpOnly; Secure; Path=/; Max-Age=0');
-  return c.json({ message: 'Logged out successfully' });
-});
-
 authRoutes.get('/check', authMiddleware, async (c) => {
   try{
     const payload = c.get('jwtPayload');
@@ -95,7 +88,7 @@ authRoutes.post('/register', async (c) => {
 
 authRoutes.post('/change-password', authMiddleware, async (c) => {
   const prisma = getPrismaClient(c.env.DB);
-  
+
   try{
     const { currentPassword, newPassword } = await c.req.json();
     const payload = c.get('jwtPayload');
@@ -105,7 +98,7 @@ authRoutes.post('/change-password', authMiddleware, async (c) => {
     if(!user) return c.json({ error: 'User not found' }, 404);
 
     // 現在のパスワード検証
-    const isPasswordValid = verifyPassword(currentPassword, user.passwordHash);
+    const isPasswordValid = await verifyPassword(currentPassword, user.passwordHash);
     if(!isPasswordValid) return c.json({ error: 'Invalid current password' }, 401);
 
     // 新しいパスワードをハッシュ化して保存
