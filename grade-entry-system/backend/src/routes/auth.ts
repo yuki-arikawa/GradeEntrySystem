@@ -93,4 +93,32 @@ authRoutes.post('/register', async (c) => {
   }
 });
 
+authRoutes.post('/change-password', authMiddleware, async (c) => {
+  const prisma = getPrismaClient(c.env.DB);
+  
+  try{
+    const { currentPassword, newPassword } = await c.req.json();
+    const payload = c.get('jwtPayload');
+
+    // ユーザー情報取得
+    const user = await prisma.user.findUnique({ where: { id: payload.id } });
+    if(!user) return c.json({ error: 'User not found' }, 404);
+
+    // 現在のパスワード検証
+    const isPasswordValid = verifyPassword(currentPassword, user.passwordHash);
+    if(!isPasswordValid) return c.json({ error: 'Invalid current password' }, 401);
+
+    // 新しいパスワードをハッシュ化して保存
+    const newHashedPassword = await hashPassword(newPassword);
+    await prisma.user.update({
+      where: { id: payload.id },
+      data: { passwordHash: newHashedPassword },
+    });
+
+    return c.json({ message: 'Password changed successfully' });
+  }catch(error){
+    return c.json({ error: 'Failed to change password', details: error.message }, 500);
+  }
+});
+
 export {authRoutes};
