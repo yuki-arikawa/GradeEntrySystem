@@ -1,9 +1,10 @@
-import Header from "./components/Header";
+'use client'
+import Header from "../components/Header/Header";
 
 export default function page() {
   return (
     <div className="h-screen">
-      <Header />
+      <Header title="Teacher Only" role='teacher' />
     </div>
   )
 }

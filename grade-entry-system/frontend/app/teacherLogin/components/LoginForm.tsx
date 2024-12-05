@@ -25,6 +25,7 @@ export default function LoginForm(){
         console.log("Login successful");
         const data = await response.json();
         localStorage.setItem('token', data.token);
+        localStorage.setItem('role', data.role);
         if(data.role !== 'teacher'){
           redirect("/login");
         }
